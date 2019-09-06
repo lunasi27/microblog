@@ -1,1 +1,7 @@
+/data/
+/db_repository/
+/flask/
+/tmp/
+
+
 *.pyc
