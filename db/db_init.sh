@@ -1,7 +1,7 @@
 #!/bin/bash
 
 PSQL_BIN=/usr/lib/postgresql/10/bin
-DATA_PATH=/home/haow/tt/microblog/data
+DATA_PATH=/home/haow/microblog/data
 LOG=${DATA_PATH}/logfile
 USER=${1:-postgres}
 DB_NAME=${2:-product}
@@ -11,6 +11,12 @@ DB_HOST=${4:-localhost}
 if [ ! -d ${DATA_PATH} ];
 then
     mkdir ${DATA_PATH}
+fi
+
+# This dir is for openid related data storage
+if [ ! -d ${DATA_PATH}/../tmp ];
+then
+    mkdir ${DATA_PATH}/../tmp
 fi
 
 ${PSQL_BIN}/initdb -D ${DATA_PATH}
