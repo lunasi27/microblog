@@ -1,12 +1,17 @@
 #!/bin/bash
 
 PSQL_BIN=/usr/lib/postgresql/10/bin
-DATA_PATH=/home/haow/microblog/data
+DATA_PATH=/home/haow/tt/microblog/data
 LOG=${DATA_PATH}/logfile
 USER=${1:-postgres}
 DB_NAME=${2:-product}
 PORT=${3:-5432}
 DB_HOST=${4:-localhost}
+
+if [ ! -d ${DATA_PATH} ];
+then
+    mkdir ${DATA_PATH}
+fi
 
 ${PSQL_BIN}/initdb -D ${DATA_PATH}
 ${PSQL_BIN}/pg_ctl -D ${DATA_PATH} -l ${LOG} start -o "-p ${PORT}"
