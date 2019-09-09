@@ -3,6 +3,7 @@ from app import db, lm
 # ORM层需要做的事情就是将以这些类创建的对象映射到合适的数据表中的具体行上。
 from werkzeug.security import generate_password_hash, check_password_hash
 from hashlib import md5
+from app.search import add_to_index, remove_from_index, query_index
 import pdb
 
 
@@ -62,6 +63,8 @@ class User(db.Model):
         self.password_hash = generate_password_hash(password)
 
     def check_password(self, password):
+        if self.password_hash is None:
+            return False
         return check_password_hash(self.password_hash, password)
 
     def avatar(self, size):
@@ -100,13 +103,58 @@ class User(db.Model):
         return Post.query.join(followers, (followers.c.followed_id == Post.user_id)).filter(followers.c.follower_id == self.id).order_by(Post.timestamp.desc())
 
 
+# user_loader回调函数
+# 主要是通过获取user对象存储到session中，自己实现最好启用缓存。
 @lm.user_loader
 def load_user(id):
     # 从数据库找到user对象
     return User.query.get(int(id))
 
 
-class Post(db.Model):
+# 整合ES与Database的钩子类，我们把Mixin类作为一个基类整合到Post模型中
+class SearchableMixin():
+    @classmethod
+    def search(cls, expression, page, per_page):
+        ids, total = query_index(cls.__tablename__, expression, page, per_page)
+        if total == 0:
+            return cls.query.filter_by(id=0), 0
+        when = []
+        for i in range(len(ids)):
+            when.append(ids[i], i)
+        return cls.query.filter(cls.id.in_(ids)).order_by(
+            db.case(when, value=cls.id)), total
+
+    @classmethod
+    def before_commit(cls, session):
+        # 于修改提交前，保存现场。因为一旦提交后，所有obj就都不可用了
+        session._changes = {
+            'add': [obj for obj in session.new if isinstance(obj, cls)],
+            'update': [obj for obj in session.dirty if isinstance(obj, cls)],
+            'delete': [obj for obj in session.deleted if isinstance(obj, cls)]
+        }
+
+    @classmethod
+    def after_commit(cls, session):
+        # 在提交成功后，是合适的时间把之前提交的修改同步到ES
+        for obj in session._changes['add']:
+            add_to_index(cls.__tablename__, obj)
+        for obj in session._changes['update']:
+            add_to_index(cls.__tablename__, obj)
+        for obj in session._changes['delete']:
+            remove_from_index(cls.__tablename__, obj)
+        session._changes = None
+
+    @classmethod
+    def reindx(cls):
+        # 这是一个辅助方法，用于一次性的加载数据库中的数据到ES
+        for obj in cls.query:
+            add_to_index(cls.__tablename__, obj)
+
+
+class Post(SearchableMixin, db.Model):
+    # 这个字段包含了所有能被搜索并且建立索引的字段。在我们的例子中，我们只要索引blog的body字段。
+    __searchable__ = ['body']
+    # Post对象中的可用字段
     id = db.Column(db.Integer, primary_key=True)
     body = db.Column(db.String(140))
     timestamp = db.Column(db.DateTime)
@@ -114,3 +162,9 @@ class Post(db.Model):
 
     def __repr__(self):
         return '<Post %r>' % (self.body)
+
+
+# 注册监听函数
+# 注意：这里的监听函数不在Post类里面，而在Post类的后面
+db.event.listen(db.session, 'before_commit', Post.before_commit)
+db.event.listen(db.session, 'after_commit', Post.after_commit)

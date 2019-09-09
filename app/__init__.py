@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_openid import OpenID
 from config import basedir, ADMINS, MAIL_SERVER, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD
+from elasticsearch import Elasticsearch
 import os
 
 app = Flask(__name__)
@@ -15,6 +16,11 @@ lm.init_app(app)
 # 告知login manager这个view允许用户登录
 lm.login_view = 'login'
 oid = OpenID(app, os.path.join(basedir, 'tmp'))
+# 初始化全文搜索引擎
+es = Elasticsearch(app.config.get('ES_HOSTS')) if app.config.get('ES_HOSTS') else None
+if es:
+    if not es.indices.exists(app.config.get('POSTS_FULL_TEXT')):
+        es.indices.create(index=app.config.get('POSTS_FULL_TEXT'), body=app.config.get('MAPPING'))
 
 from app import views, models
 

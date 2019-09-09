@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Search Result</h1>
+    {% for post in posts %}
+        {% include 'post.html' %}
+    {% endfor %}
+    <p><a href="{{ prev_url }}">Previous Result</a></p>
+    |<p><a href="{{ next_url }}">Next Result</a></p>
+{% endblock %}

@@ -2,6 +2,7 @@
 /db_repository/
 /flask/
 /tmp/
+/.vscode/
 
 
 *.pyc

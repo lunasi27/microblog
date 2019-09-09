@@ -22,7 +22,7 @@
     </tr>
 </table>
 <hr>
-{% for post in posts %}
+{% for post in posts.items %}
 <table>
     <tr valign="top">
         <td><img src={{ user.avatar(50) }}></td>
@@ -36,5 +36,22 @@
 <!-- <p> -->
     <!-- {{ post.author.nickname }} says: <b>{{ post.body }}</b> -->
 <!-- </p> -->
+
+<!-- posts.has_next 如果存在后一页的话返回 True-->
+<!-- posts.has_prev 如果存在前一页的话返回 True-->
+<!-- posts.next_num 下一页的页码-->
+<!-- posts.prev_num 上一页的页码-->
+{% if posts.has_prev %}
+<a href="{{ url_for('index', page=posts.prev_num) }}"><< Newer posts</a>
+{% else %}
+<< Newer posts
+{% endif %}
+|
+{% if posts.has_next %}
+<a href="{{ url_for('index', page=posts.next_num) }}">Older posts >></a>
+{% else %}
+Older posts >>
+{% endif %}
+
 {% endfor %}
 {% endblock %}

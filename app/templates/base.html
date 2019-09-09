@@ -12,6 +12,9 @@
 			{% if g.user.is_authenticated %}
 			| <a href="{{ url_for('user', nickname=g.user.nickname) }}">Your Profile</a>
 			| <a href="{{ url_for('logout') }}">logout</a>
+			{% else %}
+			| <a href="{{ url_for('login') }}">Login</a>
+			| <a href="{{ url_for('register') }}">Register</a>
 			{% endif %}
 		</div>
 		<hr>
@@ -24,6 +27,13 @@
 		</ul>
 		{% endif %}
 		{% endwith %}
+		{% if g.search_form %}
+		<!-- search表单和其他表单不同，他的提交页与渲染页不是同一页，所以需要显示的指定提交的URL -->
+		<form action="{{ url_for('search') }}" method="GET" name="Search">
+			{{ g.search_form.q(size=20, placeholder=g.search_form.q.label.text) }}
+		</form>
+		{% endif %}
+		<hr>
 		<!-- Here is the place tell child where to overwrite -->
 		{% block content %}{% endblock %}
 	</body>
