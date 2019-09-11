@@ -6,6 +6,7 @@ from app.models import User, Post
 from datetime import datetime
 from config import POST_PER_PAGE
 from app.forms import SearchForm
+from app.mails import follower_notification
 import pdb
 
 
@@ -196,6 +197,8 @@ def follow(nickname):
     db.session.add(u)
     db.session.commit()
     flash('You are now following %s!' % nickname)
+    # 发送邮件给，被关注者
+    follower_notification(user, g.user)
     return redirect(url_for('user', nickname=nickname))
 
 
@@ -209,7 +212,7 @@ def unfollow(nickname):
     if user == g.user:
         flash('You can\'t follow yourself.')
         return redirect(url_for('index'))
-    u = g.user.follow(user)
+    u = g.user.unfollow(user)
     if u is None:
         flash('Cannot unfollow %s.' % nickname)
         return redirect(url_for('user', nickname=nickname))
@@ -236,10 +239,7 @@ def search():
     # 计算上一页的页面URL
     prev_url = url_for('search', q=g.search_form.q.data, page=page-1) \
         if page > 1 else None
-    return render_template('search', title=_('Search'), posts=posts,
-    next_url=next_url, prev_url=prev_url)
-
-
+    return render_template('search.html', title='Search', posts=posts, next_url=next_url, prev_url=prev_url)
 
 
 # flask为应用程序提供的安装错误页的机制
@@ -255,4 +255,3 @@ def internal_error_500(error):
     # 这是用户自定义的错误处理响应页面
     db.session.rollback()
     return render_template('500.html')
-

@@ -79,5 +79,7 @@ class SearchForm(FlaskForm):
         if 'csrf_enabled' not in kwargs:
             # 我们之前为表添加了csrf保护，包含了一个CSRF标记，该标记通过模板中的form.hidden_tag()构造添加到表单中
             # 现在因为我们要使用GET方法，所以需要禁用CSRF，忽略此表单的CSRF验证
-            kwargs['csrf_enable'] = False
+            # kwargs['csrf_enable'] = None
+            kwargs['meta'] = kwargs.get('meta') or {}
+            kwargs['meta'].setdefault('csrf', None)
         super(SearchForm, self).__init__(*args, **kwargs)

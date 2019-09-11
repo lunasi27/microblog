@@ -120,7 +120,7 @@ class SearchableMixin():
             return cls.query.filter_by(id=0), 0
         when = []
         for i in range(len(ids)):
-            when.append(ids[i], i)
+            when.append((ids[i], i))
         return cls.query.filter(cls.id.in_(ids)).order_by(
             db.case(when, value=cls.id)), total
 

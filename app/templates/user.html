@@ -36,7 +36,7 @@
 <!-- <p> -->
     <!-- {{ post.author.nickname }} says: <b>{{ post.body }}</b> -->
 <!-- </p> -->
-
+{% endfor %}
 <!-- posts.has_next 如果存在后一页的话返回 True-->
 <!-- posts.has_prev 如果存在前一页的话返回 True-->
 <!-- posts.next_num 下一页的页码-->
@@ -52,6 +52,4 @@
 {% else %}
 Older posts >>
 {% endif %}
-
-{% endfor %}
 {% endblock %}

@@ -5,6 +5,17 @@
     {% for post in posts %}
         {% include 'post.html' %}
     {% endfor %}
-    <p><a href="{{ prev_url }}">Previous Result</a></p>
-    |<p><a href="{{ next_url }}">Next Result</a></p>
+    <p>
+    {% if next_url %}
+    <a href="{{ prev_url }}"><< Previous Result</a>
+    {% else %}
+    << Previous Result
+    {% endif %}
+     | 
+    {% if prev_url %}
+    <a href="{{ next_url }}">Next Result >></a>
+    {% else %}
+    Next Result >>
+    {% endif %}
+    </p>
 {% endblock %}

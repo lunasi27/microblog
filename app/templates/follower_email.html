@@ -1,0 +1,16 @@
+<p>Dear {{ user.nickname }},</p>
+
+<!-- _external=True这个参数的意义是，返回完全路径的URL，因为在flask内部域名是已知的，所以我们只要返回API名就可以了。但是外部不可以。 -->
+<p><a href="{{ url_for('user', nickname=follower.nickname, _external=True) }}">{{ follower.nickname }}</a> is now a follower.</p>
+<table>
+    <tr valign="top">
+        <td><img src="{{ follower.avatar(50) }}"></td>
+        <td>
+            <a href="{{ url_for('user', nickname=follower.nickname, _external=True) }}">{{ follower.nickname }}</a><br>
+            {{ follower.about_me }}
+        </td>
+    </tr>
+</table>
+
+<p>Regards,</p>
+<p>The <code>Microblog</code> admin</p>

@@ -26,8 +26,8 @@ SQLALCHEMY_TRACK_MODIFICATIONS = True
 # BLOG每页要显示的消息数
 POST_PER_PAGE = 3
 # 配置全文搜索数据库Elsticsearch
-ES_HOSTS = [{'host': '192.168.1.110', 'port': 9200}]
-POSTS_FULL_TEXT = 'posts'
+ES_HOSTS = [{'host': '192.168.1.111', 'port': 9200}]
+POSTS_FULL_TEXT = 'post'
 MAPPING = {
     'mappings': {
         'properties': {
@@ -42,8 +42,10 @@ MAPPING = {
 
 # 运行时出错后，发送邮件到管理员
 # 错误处理代码，在程序中配置邮件服务器以及管理员邮箱
-MAIL_SERVER = 'localhost'
-MAIL_PORT = 25
-MAIL_USERNAME = None
-MAIL_PASSWORD = None
-ADMINS = ['wanghao27@163.com']
+MAIL_SERVER = 'smtp.163.com'
+MAIL_PORT = 465
+MAIL_USE_TLS = False
+MAIL_USE_SSL = True
+MAIL_USERNAME = ''
+MAIL_PASSWORD = ''
+ADMINS = ['']

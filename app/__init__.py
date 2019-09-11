@@ -4,6 +4,7 @@ from flask_login import LoginManager
 from flask_openid import OpenID
 from config import basedir, ADMINS, MAIL_SERVER, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD
 from elasticsearch import Elasticsearch
+from flask_mail import Mail
 import os
 
 app = Flask(__name__)
@@ -16,7 +17,9 @@ lm.init_app(app)
 # 告知login manager这个view允许用户登录
 lm.login_view = 'login'
 oid = OpenID(app, os.path.join(basedir, 'tmp'))
-# 初始化全文搜索引擎
+# 初始163化邮件服务器
+mail = Mail(app)
+# 初始化全文搜索引擎Elasticsearch
 es = Elasticsearch(app.config.get('ES_HOSTS')) if app.config.get('ES_HOSTS') else None
 if es:
     if not es.indices.exists(app.config.get('POSTS_FULL_TEXT')):
@@ -24,7 +27,7 @@ if es:
 
 from app import views, models
 
-# 在非调试模式下，使用logging记录出错信息
+# 在生产模式下，使用logging记录出错信息，使用邮件发送给管理员
 if not app.debug:
     import logging
     # 使用邮件发送异常

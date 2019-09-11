@@ -1,5 +1,7 @@
 from app import es
+import pdb
 
+# Elasticsearch与Flask整合教程 https://www.jianshu.com/p/56cfc972d372
 
 # 这样做的好处就是把所有和ES有关的代码都放在search文件里，以后如果要修改查询引擎，只需要修改这一个文件就好了
 def add_to_index(index, model):
@@ -31,4 +33,5 @@ def query_index(index, query, page, per_page):
     }
     search = es.search(index=index, body=body)
     ids = [int(hit['_id']) for hit in search['hits']['hits']]
-    return ids, search['hits']['total']
+    total = int(search['hits']['total']['value'])
+    return ids, total
